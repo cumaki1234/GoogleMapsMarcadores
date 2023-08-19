@@ -77,78 +77,90 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 JSONObject place = results.getJSONObject(i);
                                 String name = place.getString("name");
                                 String placeId = place.getString("place_id");
+                                //JSONObject Horarios= place.getJSONObject("opening_hours");
+                                //String H = Horarios.getString("open_now");
 
+
+                                String Ubicacion= place.getString("vicinity");
                                 JSONObject geometry = place.getJSONObject("geometry");
                                 JSONObject location = geometry.getJSONObject("location");
                                 double placeLat = location.getDouble("lat");
                                 double placeLng = location.getDouble("lng");
-                                JSONArray photos = place.optJSONArray("photos");
-                                if (photos != null && photos.length() > 0) {
-                                    JSONObject firstPhoto = photos.getJSONObject(0);
-                                    String photoReference = firstPhoto.getString("photo_reference");
-                                    String detailsUrl = "https://maps.googleapis.com/maps/api/place/details/json?" +
-                                            "fields=name%2Crating%2Cformatted_phone_number" +
-                                            "&place_id=" + placeId +
-                                            "&key=" + API_KEY;
-                                    LatLng placeLatLng = new LatLng(placeLat, placeLng);
-                                    JsonObjectRequest detailsRequest = new JsonObjectRequest(Request.Method.GET, detailsUrl, null,
-                                            new Response.Listener<JSONObject>() {
-                                                @Override
-                                                public void onResponse(JSONObject response) {
-                                                    try {
-                                                        //String name = response.getJSONObject("result").getString("name");
-                                                        String rating = response.getJSONObject("result").getString("rating");
-                                                        String phoneNumber = response.getJSONObject("result").getString("formatted_phone_number");
-
-                                                        String photoUrl = "https://maps.googleapis.com/maps/api/place/photo?" +
-                                                                "maxwidth=400" +
-                                                                "&photo_reference=" + photoReference +
-                                                                "&key=" +API_KEY;
-                                                        /*MarkerOptions markerOptions = new MarkerOptions()
-                                                                .position(placeLatLng)
-                                                                .title(name)
-                                                                .snippet("Rating: " + rating + "\nPhone: " + phoneNumber);
-                                                        Marker marker = Mapa.addMarker(markerOptions);*/
 
 
-                                                        ImageRequest imageRequest = new ImageRequest(photoUrl,
-                                                                new Response.Listener<android.graphics.Bitmap>() {
-                                                                    @Override
-                                                                    public void onResponse(android.graphics.Bitmap response) {
-                                                                        MarkerOptions markerOptions = new MarkerOptions()
-                                                                                .position(placeLatLng)
-                                                                                .title(name)
-                                                                                .snippet("Rating: " + rating + "\nPhone: " + phoneNumber);
-                                                                        Marker marker = Mapa.addMarker(markerOptions);
-                                                                        marker.setTag(response);
-                                                                    }
-                                                                }, 0, 0, ImageView.ScaleType.CENTER_CROP, null,
-                                                                new Response.ErrorListener() {
-                                                                    @Override
-                                                                    public void onErrorResponse(VolleyError error) {
-                                                                        error.printStackTrace();
-                                                                    }
-                                                                });
-
-                                                        requestQueue.add(imageRequest);
 
 
-                                                        //Marker marker2=Mapa.addMarker(new MarkerOptions().position(placeLatLng).title(name).snippet("Rating: " + rating + "\nPhone: " + phoneNumber));
-                                                        //marker.showInfoWindow();
-                                                    } catch (JSONException e) {
-                                                        e.printStackTrace();
+                                    JSONArray photos = place.optJSONArray("photos");
+
+
+                                    if (photos != null && photos.length() > 0) {
+
+
+                                        JSONObject firstPhoto = photos.getJSONObject(0);
+                                        String photoReference = firstPhoto.getString("photo_reference");
+                                        String detailsUrl = "https://maps.googleapis.com/maps/api/place/details/json?" +
+                                                "fields=name%2Crating%2Cformatted_phone_number" +
+                                                "&place_id=" + placeId +
+                                                "&key=" + API_KEY;
+
+
+
+                                        JsonObjectRequest detailsRequest = new JsonObjectRequest(Request.Method.GET, detailsUrl, null,
+                                                new Response.Listener<JSONObject>() {
+                                                    @Override
+                                                    public void onResponse(JSONObject response) {
+                                                        try {
+                                                            //String name = response.getJSONObject("result").getString("name");
+                                                            String rating = response.getJSONObject("result").getString("rating");
+                                                            String phoneNumber = response.getJSONObject("result").getString("formatted_phone_number");
+
+                                                            String photoUrl = "https://maps.googleapis.com/maps/api/place/photo?" +
+                                                                    "maxwidth=200" +
+                                                                    "&photo_reference=" + photoReference +
+                                                                    "&key=" + API_KEY;
+
+                                                            ImageRequest imageRequest = new ImageRequest(photoUrl,
+                                                                    new Response.Listener<android.graphics.Bitmap>() {
+                                                                        @Override
+                                                                        public void onResponse(android.graphics.Bitmap response) {
+                                                                            LatLng placeLatLng = new LatLng(placeLat, placeLng);
+                                                                           MarkerOptions markerOptions = new MarkerOptions()
+                                                                                    .position(placeLatLng)
+                                                                                    .title(name)
+                                                                                    .snippet("Calificacion: " + rating + "\nTelefono: " + phoneNumber+ "\nUbicacion: "+
+                                                                                            Ubicacion
+                                                                                    );
+                                                                            Marker marker = Mapa.addMarker(markerOptions);
+                                                                            marker.setTag(response);
+
+                                                                        }
+                                                                    }, 0, 0, ImageView.ScaleType.CENTER_CROP, null,
+                                                                    new Response.ErrorListener() {
+                                                                        @Override
+                                                                        public void onErrorResponse(VolleyError error) {
+                                                                            error.printStackTrace();
+                                                                        }
+                                                                    });
+
+                                                            requestQueue.add(imageRequest);
+
+
+                                                            //Marker marker2=Mapa.addMarker(new MarkerOptions().position(placeLatLng).title(name).snippet("Rating: " + rating + "\nPhone: " + phoneNumber));
+                                                            //marker.showInfoWindow();
+                                                        } catch (JSONException e) {
+                                                            e.printStackTrace();
+                                                        }
                                                     }
-                                                }
-                                            },
-                                            new Response.ErrorListener() {
-                                                @Override
-                                                public void onErrorResponse(VolleyError error) {
-                                                    // Manejar el error
-                                                }
-                                            });
-                                    requestQueue.add(detailsRequest);
+                                                },
+                                                new Response.ErrorListener() {
+                                                    @Override
+                                                    public void onErrorResponse(VolleyError error) {
+                                                        // Manejar el error
+                                                    }
+                                                });
+                                        requestQueue.add(detailsRequest);
+                                    }
                                 }
-                            }
 
                         } catch(JSONException e){
                                 e.printStackTrace();
